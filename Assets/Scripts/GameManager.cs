@@ -40,6 +40,7 @@ public class GameManager : MonoBehaviour
     public UnityEvent endLevelEvent;
     public UnityEvent loseLevelEvent;
 
+    private bool itemCollected = false;
     void Awake()
     {
         _board = Object.FindObjectOfType<Board>().GetComponent<Board>();
@@ -86,20 +87,14 @@ public class GameManager : MonoBehaviour
         _player.playerInput.EnableInput = true;
 
         if (playLevelEvent != null)
-        {
             playLevelEvent.Invoke();
-        }
 
         while (!_isGameOver)
         {
-            
             yield return null;
 
             _isGameOver = IsWinner();
-
-           
         }
-        // Debug.Log("WIN! ==========================");
     }
 
     public void LoseLevel()
@@ -107,24 +102,18 @@ public class GameManager : MonoBehaviour
         StartCoroutine(LoseLevelRoutine());
     }
 
-    
     IEnumerator LoseLevelRoutine()
     {
-    	
         _isGameOver = true;
 
         yield return new WaitForSeconds(1.5f);
 
-        
         if (loseLevelEvent != null)
-        {
             loseLevelEvent.Invoke();
-        }
 
         yield return new WaitForSeconds(2f);
 
         Debug.Log("You have lost");
-
         RestartLevel();
     }
 
@@ -132,24 +121,17 @@ public class GameManager : MonoBehaviour
     {
         Debug.Log("End Level");
         _player.playerInput.EnableInput = false;
-
         
         if (endLevelEvent != null)
-        {
             endLevelEvent.Invoke();
-        }
 
-       
         while (!_hasLevelFinished)
         {
-
             yield return null;
         }
 
-       
         RestartLevel();
     }
-
     
     void RestartLevel()
     {
@@ -157,7 +139,6 @@ public class GameManager : MonoBehaviour
         SceneManager.LoadScene(scene.name);
     }
 
-    
     public void PlayLevel()
     {
         _hasLevelStarted = true;
@@ -165,21 +146,16 @@ public class GameManager : MonoBehaviour
 
     bool IsWinner()
     {
-        
          if (!itemCollected)
         {
             return false;
         }
-        
         if (_board.PlayerNode != null)
         {
             return (_board.PlayerNode == _board.GoalNode);
         }
         
-        
         return false;
-
-
     }
 
     void PlayPlayerTurn()
@@ -187,7 +163,6 @@ public class GameManager : MonoBehaviour
         _currentTurn = Turn.Player;
         _player.IsTurnOver = false;
 
-        
     }
 
     void PlayEnemyTurn()
@@ -205,22 +180,16 @@ public class GameManager : MonoBehaviour
         }
     }
 
-    
     bool IsEnemyTurnComplete()
     {
         foreach (EnemyManager enemy in _enemies)
         {
             if (enemy.IsDead)
-            {
                 continue;
-            }
 
             if (!enemy.IsTurnOver)
-            {
                 return false;
-            }
         }
-
         return true;
     }
 
@@ -229,9 +198,7 @@ public class GameManager : MonoBehaviour
         foreach (EnemyManager enemy in _enemies)
         {
             if (!enemy.IsDead)
-            {
                 return false;
-            }
         }
         return true;
     }
@@ -245,7 +212,6 @@ public class GameManager : MonoBehaviour
             {
                 PlayEnemyTurn();
             }
-
         }
         else if (_currentTurn == Turn.Enemy)
         {
@@ -256,9 +222,6 @@ public class GameManager : MonoBehaviour
         }
     }
 
-     private bool itemCollected = false;
-
-   
     public void CollectItem()
     {
         itemCollected = true;
@@ -269,7 +232,6 @@ public class GameManager : MonoBehaviour
     {
         return itemCollected;
     }
-
     
     public void FinishLevel()
     {
@@ -283,5 +245,4 @@ public class GameManager : MonoBehaviour
             Debug.Log("You need to collect the item before finishing the level.");
         }
     }
-
 }
