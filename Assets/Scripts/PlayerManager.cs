@@ -11,7 +11,7 @@ public class PlayerManager : TurnManager
 	public PlayerMover playerMover;
     public PlayerInput playerInput;
 
-    Board m_board;
+    Board _board;
 
     public UnityEvent deathEvent;
 
@@ -22,66 +22,52 @@ public class PlayerManager : TurnManager
 		playerMover = GetComponent<PlayerMover>();
         playerInput = GetComponent<PlayerInput>();
 
-        m_board = Object.FindObjectOfType<Board>().GetComponent<Board>();
+        _board = Object.FindObjectOfType<Board>().GetComponent<Board>();
 
-		playerInput.InputEnabled = true;
+		playerInput.EnableInput = true;
     }
 
     void Update()
     {
-        if (playerMover.isMoving || m_gameManager.CurrentTurn != Turn.Player)
-        {
+        if (playerMover.isMoving || _gameManager.CurrentTurn != Turn.Player)
             return;
-        }
 
 		playerInput.GetKeyInput();
 
 		if (playerInput.V == 0)
         {
             if (playerInput.H < 0)
-            {
                 playerMover.MoveLeft();
-            }
             else if (playerInput.H > 0)
-            {
                 playerMover.MoveRight();
-            }
         }
         else if (playerInput.H == 0)
         {
             if (playerInput.V < 0)
-            {
-                playerMover.MoveBackward();
-            }
+                playerMover.MoveDown();
             else if (playerInput.V > 0)
-            {
-                playerMover.MoveForward();
-            }
+                playerMover.MoveUp();
         }
     }
 
     public void Die()
     {
         if (deathEvent != null)
-        {
             deathEvent.Invoke();
-        }
     }
 
     void CaptureEnemies()
     {
-        if (m_board != null)
+        if (_board != null)
         {
-            List<EnemyManager> enemies = m_board.FindEnemiesAt(m_board.PlayerNode);
+            List<EnemyManager> enemies = _board.FindEnemiesAt(_board.PlayerNode);
 
             if (enemies.Count != 0)
             {
                 foreach (EnemyManager enemy in enemies)
                 {
                     if (enemy != null)
-                    {
                         enemy.Die();
-                    }
                 }
             }
         }
@@ -90,8 +76,6 @@ public class PlayerManager : TurnManager
     public override void FinishTurn()
     {
         CaptureEnemies();
-
         base.FinishTurn();
     }
-
 }

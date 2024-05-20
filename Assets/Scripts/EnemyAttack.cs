@@ -5,18 +5,15 @@ using UnityEngine;
 public class EnemyAttack : MonoBehaviour
 {
 
-    PlayerManager m_player;
-
+    PlayerManager _player;
     void Awake()
     {
-        m_player = Object.FindObjectOfType<PlayerManager>().GetComponent<PlayerManager>();
+        _player = Object.FindObjectOfType<PlayerManager>().GetComponent<PlayerManager>();
     }
 
     public void Attack()
     {
-        if (m_player != null)
-        {
-            m_player.Die();
-        }
+        if (_player != null)
+            _player.Die();
     }
 }

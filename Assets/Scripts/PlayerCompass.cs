@@ -4,10 +4,9 @@ using UnityEngine;
 
 public class PlayerCompass : MonoBehaviour
 {
+	Board _board;
 
-	Board m_board;
-
-	List<GameObject> m_arrows = new List<GameObject>();
+	List<GameObject> _arrows = new List<GameObject>();
 
 	public GameObject arrowPrefab;
 
@@ -15,14 +14,12 @@ public class PlayerCompass : MonoBehaviour
     public float endDistance = 0.5f;
     public float scale = 1f;
 	public float moveTime = 1f;
-
 	public iTween.EaseType easeType = iTween.EaseType.easeInOutExpo;
-
 	public float delay = 0f;
 
     void Awake()
     {
-		m_board = GameObject.FindObjectOfType<Board>().GetComponent<Board>();
+		_board = GameObject.FindObjectOfType<Board>().GetComponent<Board>();
 		SetupArrows();
     }
 
@@ -30,26 +27,20 @@ public class PlayerCompass : MonoBehaviour
     {
 		if (arrowPrefab == null)
         {
-            Debug.LogWarning("PLAYERCOMPASS SetupArrows ERROR: Missing arrow prefab!");
+            Debug.LogWarning("Missing arrow prefab!");
             return;
         }
 
 		foreach (Vector2 dir in Board.directions)
 		{
 			Vector3 dirVector = new Vector3(dir.normalized.x, 0f, dir.normalized.y);
-
 			Quaternion rotation = Quaternion.LookRotation(dirVector);
-
 			GameObject arrowInstance = Instantiate(arrowPrefab, transform.position + dirVector * startDistance, rotation);
-
 			arrowInstance.transform.localScale = new Vector3(scale, scale, scale);
-
 			arrowInstance.transform.parent = transform;
-
-			m_arrows.Add(arrowInstance);
+			_arrows.Add(arrowInstance);
         }
     }
-
 
 	void MoveArrow(GameObject arrowInstance)
     {
@@ -63,7 +54,7 @@ public class PlayerCompass : MonoBehaviour
 
 	void MoveArrows()
     {
-        foreach (GameObject arrow in m_arrows)
+        foreach (GameObject arrow in _arrows)
         {
             MoveArrow(arrow);
         }
@@ -71,32 +62,32 @@ public class PlayerCompass : MonoBehaviour
 
     public void ShowArrows(bool state)
     {
-        if (m_board == null)
+        if (_board == null)
         {
             Debug.LogWarning("PLAYERCOMPASS ShowArrows ERROR: no Board found!");
             return;
         }
 
-        if (m_arrows == null || m_arrows.Count != Board.directions.Length)
+        if (_arrows == null || _arrows.Count != Board.directions.Length)
 		{
 			Debug.LogWarning("PLAYERCOMPASS ShowArrows ERROR: no arrows found!");
 			return;
 		}
 
-        if (m_board.PlayerNode != null)
+        if (_board.PlayerNode != null)
         {
             for (int i = 0; i < Board.directions.Length; i++)
             {
-                Node neighbor = m_board.PlayerNode.FindNeighborAt(Board.directions[i]);
+                Node neighbor = _board.PlayerNode.FindNeighborAt(Board.directions[i]);
 
                 if (neighbor == null || !state)
                 {
-                    m_arrows[i].SetActive(false);
+                    _arrows[i].SetActive(false);
                 }
                 else
                 {
-                    bool activeState = m_board.PlayerNode.LinkedNodes.Contains(neighbor);
-                    m_arrows[i].SetActive(activeState);
+                    bool activeState = _board.PlayerNode.LinkedNodes.Contains(neighbor);
+                    _arrows[i].SetActive(activeState);
                 }
             }
         }
@@ -111,10 +102,10 @@ public class PlayerCompass : MonoBehaviour
     
         for (int i = 0; i < Board.directions.Length; i++)
         {
-            iTween.Stop(m_arrows[i]);
+            iTween.Stop(_arrows[i]);
             Vector3 dirVector = new Vector3(Board.directions[i].normalized.x, 0f,
                                             Board.directions[i].normalized.y);
-            m_arrows[i].transform.position = transform.position + dirVector * startDistance;
+            _arrows[i].transform.position = transform.position + dirVector * startDistance;
         }
     }
 }

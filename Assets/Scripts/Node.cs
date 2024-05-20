@@ -4,58 +4,50 @@ using UnityEngine;
 
 public class Node : MonoBehaviour
 {
-    Vector2 m_coordinate;
-    public Vector2 Coordinate { get { return Utility.Vector2Round(m_coordinate); } }
+    Vector2 _coordinate;
+    public Vector2 Coordinate { get { return Utils.Vector2Round(_coordinate); } }
 
-    List<Node> m_neighborNodes = new List<Node>();
-    public List<Node> NeighborNodes { get { return m_neighborNodes; } }
+    List<Node> _neighborNodes = new List<Node>();
+    public List<Node> NeighborNodes { get { return _neighborNodes; } }
 
-    List<Node> m_linkedNodes = new List<Node>();
-    public List<Node> LinkedNodes { get { return m_linkedNodes; } }
+    List<Node> _linkedNodes = new List<Node>();
+    public List<Node> LinkedNodes { get { return _linkedNodes; } }
 
-    Board m_board;
+    Board _board;
+    bool _isInitialized = false;
 
-    public GameObject geometry;
-
+    public GameObject mesh;
     public GameObject linkPrefab;
-
     public float scaleTime = 0.3f;
-
     public iTween.EaseType easeType = iTween.EaseType.easeInExpo;
-
     public float delay = 1f;
-
-    bool m_isInitialized = false;
-
     public LayerMask obstacleLayer;
-
     public bool isLevelGoal = false;
+    public bool isPastObstacle = false;
+    public bool isFutureObstacle = false;
 
     void Awake()
     {
-        m_board = Object.FindObjectOfType<Board>();
-
-        m_coordinate = new Vector2(transform.position.x, transform.position.z);
+        _board = Object.FindObjectOfType<Board>();
+        _coordinate = new Vector2(transform.position.x, transform.position.z);
     }
 
     void Start()
     {
-        if (geometry != null)
+        if (mesh != null)
         {
-            geometry.transform.localScale = Vector3.zero;
+            mesh.transform.localScale = Vector3.zero;
 
-            if (m_board != null)
-            {
-                m_neighborNodes = FindNeighbors(m_board.AllNodes);
-            }
+            if (_board != null)
+                _neighborNodes = FindNeighbors(_board.AllNodes);
         }
     }
 
-    public void ShowGeometry()
+    public void ShowNode()
     {
-        if (geometry != null)
+        if (mesh != null)
         {
-            iTween.ScaleTo(geometry, iTween.Hash(
+            iTween.ScaleTo(mesh, iTween.Hash(
                 "time", scaleTime,
                 "scale", Vector3.one,
                 "easetype", easeType,
@@ -66,18 +58,16 @@ public class Node : MonoBehaviour
 
     public List<Node> FindNeighbors(List<Node> nodes)
     {
-        List<Node> nList = new List<Node>();
+        List<Node> tempList = new List<Node>();
 
         foreach (Vector2 dir in Board.directions)
         {
             Node foundNeighbor = FindNeighborAt(nodes, dir);
 
-            if (foundNeighbor != null && !nList.Contains(foundNeighbor))
-            {
-                nList.Add(foundNeighbor);
-            }
+            if (foundNeighbor != null && !tempList.Contains(foundNeighbor))
+                tempList.Add(foundNeighbor);
         }
-        return nList;
+        return tempList;
     }
 
     public Node FindNeighborAt(List<Node> nodes, Vector2 dir)
@@ -93,11 +83,11 @@ public class Node : MonoBehaviour
 
     public void InitNode()
     {
-        if (!m_isInitialized)
+        if (!_isInitialized)
         {
-            ShowGeometry();
+            ShowNode();
             InitNeighbors();
-            m_isInitialized = true;
+            _isInitialized = true;
         }
     }
 
@@ -110,9 +100,9 @@ public class Node : MonoBehaviour
     {
         yield return new WaitForSeconds(delay);
 
-        foreach (Node n in m_neighborNodes)
+        foreach (Node n in _neighborNodes)
         {
-            if (!m_linkedNodes.Contains(n))
+            if (!_linkedNodes.Contains(n))
             {
                 Obstacle obstacle = FindObstacle(n);
                 if (obstacle == null)
@@ -133,19 +123,13 @@ public class Node : MonoBehaviour
 
             Link link = linkInstance.GetComponent<Link>();
             if (link != null)
-            {
-                link.DrawLink(transform.position, targetNode.transform.position);
-            }
+                link.ShowLink(transform.position, targetNode.transform.position);
 
-            if (!m_linkedNodes.Contains(targetNode))
-            {
-                m_linkedNodes.Add(targetNode);
-            }
+            if (!_linkedNodes.Contains(targetNode))
+                _linkedNodes.Add(targetNode);
 
             if (!targetNode.LinkedNodes.Contains(this))
-            {
                 targetNode.LinkedNodes.Add(this);
-            }
         }
     }
 
@@ -154,11 +138,9 @@ public class Node : MonoBehaviour
         Vector3 checkDirection = targetNode.transform.position - transform.position;
         RaycastHit raycastHit;
 
-        if (Physics.Raycast(transform.position, checkDirection, out raycastHit, Board.spacing + 0.1f,
-                            obstacleLayer))
-        {
+        if (Physics.Raycast(transform.position, checkDirection, out raycastHit, Board.spacing + 0.1f, obstacleLayer))
             return raycastHit.collider.GetComponent<Obstacle>();
-        }
+
         return null;
     }
 }

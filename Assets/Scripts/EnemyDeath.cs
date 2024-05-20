@@ -4,33 +4,22 @@ using UnityEngine;
 
 public class EnemyDeath : MonoBehaviour
 {
-   
-    public Vector3 offscreenOffset = new Vector3(0f, 10f, 0f);
+    public Vector3 offScreenOffset = new Vector3(0f, 10f, 0f);
 
-    
-    Board m_board;
+    Board _board;
 
     public float deathDelay = 0f;
-
-   
     public float offscreenDelay = 1f;
-
-   
     public float iTweenDelay = 0f;
-
-    
     public iTween.EaseType easeType = iTween.EaseType.easeInOutQuint;
-
-    
     public float moveTime = 0.5f;
 
     void Awake()
     {
-        m_board = Object.FindObjectOfType<Board>().GetComponent<Board>();
+        _board = Object.FindObjectOfType<Board>().GetComponent<Board>();
     }
 
-    
-    public void MoveOffBoard(Vector3 target)
+    public void FlyOffBoard(Vector3 target)
     {
         iTween.MoveTo(gameObject, iTween.Hash(
             "x", target.x,
@@ -42,7 +31,6 @@ public class EnemyDeath : MonoBehaviour
         ));
     }
 
-	
 	public void Die()
     {
         StartCoroutine(DieRoutine());
@@ -50,35 +38,23 @@ public class EnemyDeath : MonoBehaviour
 
     IEnumerator DieRoutine()
     {
-        
         yield return new WaitForSeconds(deathDelay);
+        Vector3 offscreenPos = transform.position + offScreenOffset;
 
-        
-        Vector3 offscreenPos = transform.position + offscreenOffset;
+        FlyOffBoard(offscreenPos);
 
-        
-        MoveOffBoard(offscreenPos);
-
-        
         yield return new WaitForSeconds(moveTime + offscreenDelay);
 
-        
-        if (m_board.capturePositions.Count != 0 
-            && m_board.CurrentCapturePosition < m_board.capturePositions.Count)
+        if (_board.capturePositions.Count != 0 && _board.CurrentCapturePosition < _board.capturePositions.Count)
         {
-           
-            Vector3 capturePos = m_board.capturePositions[m_board.CurrentCapturePosition].position;
-
-           
-            transform.position = capturePos + offscreenOffset;
-
-            MoveOffBoard(capturePos);
+            Vector3 capturePos = _board.capturePositions[_board.CurrentCapturePosition].position;
+            transform.position = capturePos + offScreenOffset;
+            FlyOffBoard(capturePos);
 
             yield return new WaitForSeconds(moveTime);
 
-            m_board.CurrentCapturePosition++;
-            m_board.CurrentCapturePosition = 
-                Mathf.Clamp(m_board.CurrentCapturePosition, 0, m_board.capturePositions.Count - 1);
+            _board.CurrentCapturePosition++;
+            _board.CurrentCapturePosition = Mathf.Clamp(_board.CurrentCapturePosition, 0, _board.capturePositions.Count - 1);
         }
     }
 }

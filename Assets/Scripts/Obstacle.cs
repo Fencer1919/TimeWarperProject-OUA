@@ -5,17 +5,16 @@ using UnityEngine;
 [RequireComponent(typeof(BoxCollider))]
 public class Obstacle : MonoBehaviour
 {
-    BoxCollider m_boxCollider;
+    BoxCollider _boxCollider;
 
     void Awake()
     {
-        m_boxCollider = GetComponent<BoxCollider>();
+        _boxCollider = GetComponent<BoxCollider>();
     }
 
     private void OnDrawGizmos()
     {
-        Gizmos.color = new Color(1f, 0f, 0f, 0.5f);
+        Gizmos.color = new Color(0f, 0f, 1f, 0.5f);
         Gizmos.DrawCube(transform.position, new Vector3(1f, 1f, 1f));
-
     }
 }

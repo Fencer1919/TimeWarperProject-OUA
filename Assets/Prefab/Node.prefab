@@ -25,13 +25,13 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1756070109034076}
+  serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 4702286934062336}
-  m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!33 &33717524726016132
 MeshFilter:
@@ -107,6 +107,7 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1820786487129164}
+  serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 2, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
@@ -114,7 +115,6 @@ Transform:
   m_Children:
   - {fileID: 4480314815589460}
   m_Father: {fileID: 0}
-  m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &114906779870049302
 MonoBehaviour:
@@ -128,11 +128,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 75f4d1ccb6ca34b70841bb8ade3bfe4c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  geometry: {fileID: 1756070109034076}
+  mesh: {fileID: 100000, guid: 3dee43d2446762b49853361cfbbf305c, type: 3}
   linkPrefab: {fileID: 1695259637619062, guid: c123b518a56fd4cf4af3dad78b7ef42b, type: 3}
   scaleTime: 0.3
   easeType: 15
-  delay: 0.1
+  delay: 0.3
   obstacleLayer:
     serializedVersion: 2
     m_Bits: 256

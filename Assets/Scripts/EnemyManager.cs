@@ -8,19 +8,14 @@ using UnityEngine.Events;
 [RequireComponent(typeof(EnemyAttack))]
 public class EnemyManager : TurnManager
 {
-    EnemyMover m_enemyMover;
+    EnemyMover _enemyMover;
+    EnemySensor _enemySensor;
+    EnemyAttack _enemyAttack;
 
-    
-    EnemySensor m_enemySensor;
+    Board _board;
 
-    EnemyAttack m_enemyAttack;
-
-    
-    Board m_board;
-
-    bool m_isDead = false;
-    public bool IsDead { get { return m_isDead; }}
-
+    bool _isDead = false;
+    public bool IsDead { get { return _isDead; }}
     
     public UnityEvent deathEvent;
 
@@ -28,79 +23,57 @@ public class EnemyManager : TurnManager
     {
         base.Awake();
 
-        m_board = Object.FindObjectOfType<Board>().GetComponent<Board>();
-        m_enemyMover = GetComponent<EnemyMover>();
-        m_enemySensor = GetComponent<EnemySensor>();
-        m_enemyAttack = GetComponent<EnemyAttack>();
-
+        _board = Object.FindObjectOfType<Board>().GetComponent<Board>();
+        _enemyMover = GetComponent<EnemyMover>();
+        _enemySensor = GetComponent<EnemySensor>();
+        _enemyAttack = GetComponent<EnemyAttack>();
     }
 
-    
     public void PlayTurn()
     {
-        if (m_isDead)
+        if (_isDead)
         {
             FinishTurn();
             return;
         }
-
         StartCoroutine(PlayTurnRoutine());
     }
 
-    
     IEnumerator PlayTurnRoutine()
     {
-        if (m_gameManager != null && !m_gameManager.IsGameOver)
+        if (_gameManager != null && !_gameManager.IsGameOver)
         {
-            
-            m_enemySensor.UpdateSensor(m_enemyMover.CurrentNode);
-
-            
+            _enemySensor.UpdateSensor(_enemyMover.CurrentNode);
             yield return new WaitForSeconds(0f);
 
-            if (m_enemySensor.FoundPlayer)
+            if (_enemySensor.FoundPlayer)
             {
-				
-				m_gameManager.LoseLevel();
+				_gameManager.LoseLevel();
 
+                Vector3 playerPosition = new Vector3(_board.PlayerNode.Coordinate.x, 0f, _board.PlayerNode.Coordinate.y);
                 
-                Vector3 playerPosition = new Vector3(m_board.PlayerNode.Coordinate.x, 0f,
-                                                     m_board.PlayerNode.Coordinate.y);
-                
-                m_enemyMover.Move(playerPosition, 0f);
+                _enemyMover.Move(playerPosition, 0f);
 
-                
-                while (m_enemyMover.isMoving)
-                {
+                while (_enemyMover.isMoving)
                     yield return null;
-                }
-
-                  
-                m_enemyAttack.Attack();
-
-
+    
+                _enemyAttack.Attack();
             }
             else
             {
-               
-                m_enemyMover.MoveOneTurn();
+                _enemyMover.MoveOneTurn();
             }
         }
     }
 
-    
     public void Die()
     {
-        if (m_isDead)
-        {
+        if (_isDead)
             return;
-        }
 
-        m_isDead = true;
+        _isDead = true;
 
         if (deathEvent != null)
-        {
             deathEvent.Invoke();
-        }
     }
 }

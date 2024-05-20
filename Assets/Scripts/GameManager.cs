@@ -11,69 +11,48 @@ public enum Turn
     Player,
     Enemy
 }
-
 public class GameManager : MonoBehaviour
 {
-    
-    Board m_board;
+    Board _board;
+    PlayerManager _player;
+    List<EnemyManager> _enemies;
 
-    
-    PlayerManager m_player;
-
-    List<EnemyManager> m_enemies;
-
-    Turn m_currentTurn = Turn.Player;
-    public Turn CurrentTurn { get { return m_currentTurn; } }
-
+    Turn _currentTurn = Turn.Player;
+    public Turn CurrentTurn { get { return _currentTurn; } }
    
-    bool m_hasLevelStarted = false;
-    public bool HasLevelStarted { get { return m_hasLevelStarted; } set { m_hasLevelStarted = value; } }
+    bool _hasLevelStarted = false;
+    public bool HasLevelStarted { get { return _hasLevelStarted; } set { _hasLevelStarted = value; } }
 
-  
-    bool m_isGamePlaying = false;
-    public bool IsGamePlaying { get { return m_isGamePlaying; } set { m_isGamePlaying = value; } }
+    bool _isGamePlaying = false;
+    public bool IsGamePlaying { get { return _isGamePlaying; } set { _isGamePlaying = value; } }
 
-    
-    bool m_isGameOver = false;
-    public bool IsGameOver { get { return m_isGameOver; } set { m_isGameOver = value; } }
+    bool _isGameOver = false;
+    public bool IsGameOver { get { return _isGameOver; } set { _isGameOver = value; } }
 
-    
-    bool m_hasLevelFinished = false;
-    public bool HasLevelFinished { get { return m_hasLevelFinished; } set { m_hasLevelFinished = value; } }
+    bool _hasLevelFinished = false;
+    public bool HasLevelFinished { get { return _hasLevelFinished; } set { _hasLevelFinished = value; } }
 
-   
     public float delay = 1f;
 
-    
     public UnityEvent setupEvent;
     public UnityEvent startLevelEvent;
     public UnityEvent playLevelEvent;
     public UnityEvent endLevelEvent;
     public UnityEvent loseLevelEvent;
 
-
     void Awake()
     {
-        
-        m_board = Object.FindObjectOfType<Board>().GetComponent<Board>();
-        m_player = Object.FindObjectOfType<PlayerManager>().GetComponent<PlayerManager>();
-        m_enemies = (Object.FindObjectsOfType<EnemyManager>() as EnemyManager[]).ToList();
+        _board = Object.FindObjectOfType<Board>().GetComponent<Board>();
+        _player = Object.FindObjectOfType<PlayerManager>().GetComponent<PlayerManager>();
+        _enemies = (Object.FindObjectsOfType<EnemyManager>() as EnemyManager[]).ToList();
     }
 
     void Start()
     {
-        
-        if (m_player != null && m_board != null)
-        {
+        if (_player != null && _board != null)
             StartCoroutine("RunGameLoop");
-        }
-        else
-        {
-            Debug.LogWarning("No player or board found!");
-        }
     }
 
-    
     IEnumerator RunGameLoop()
     {
         yield return StartCoroutine("StartLevelRoutine");
@@ -81,7 +60,6 @@ public class GameManager : MonoBehaviour
         yield return StartCoroutine("EndLevelRoutine");
     }
 
-   
     IEnumerator StartLevelRoutine()
     {
         Debug.Log("Setup Level");
@@ -91,40 +69,33 @@ public class GameManager : MonoBehaviour
         }
 
         Debug.Log("Start Level");
-        m_player.playerInput.InputEnabled = false;
+        _player.playerInput.EnableInput = false;
 
-        while (!m_hasLevelStarted)
-        {
-            
+        while (!_hasLevelStarted)
             yield return null;
-        }
-
         
         if (startLevelEvent != null)
-        {
             startLevelEvent.Invoke();
-        }
     }
-
    
     IEnumerator PlayLevelRoutine()
     {
         Debug.Log("Play Level");
-        m_isGamePlaying = true;
+        _isGamePlaying = true;
         yield return new WaitForSeconds(delay);
-        m_player.playerInput.InputEnabled = true;
+        _player.playerInput.EnableInput = true;
 
         if (playLevelEvent != null)
         {
             playLevelEvent.Invoke();
         }
 
-        while (!m_isGameOver)
+        while (!_isGameOver)
         {
             
             yield return null;
 
-            m_isGameOver = IsWinner();
+            _isGameOver = IsWinner();
 
            
         }
@@ -140,7 +111,7 @@ public class GameManager : MonoBehaviour
     IEnumerator LoseLevelRoutine()
     {
     	
-        m_isGameOver = true;
+        _isGameOver = true;
 
         yield return new WaitForSeconds(1.5f);
 
@@ -160,7 +131,7 @@ public class GameManager : MonoBehaviour
     IEnumerator EndLevelRoutine()
     {
         Debug.Log("End Level");
-        m_player.playerInput.InputEnabled = false;
+        _player.playerInput.EnableInput = false;
 
         
         if (endLevelEvent != null)
@@ -169,7 +140,7 @@ public class GameManager : MonoBehaviour
         }
 
        
-        while (!m_hasLevelFinished)
+        while (!_hasLevelFinished)
         {
 
             yield return null;
@@ -189,7 +160,7 @@ public class GameManager : MonoBehaviour
     
     public void PlayLevel()
     {
-        m_hasLevelStarted = true;
+        _hasLevelStarted = true;
     }
 
     bool IsWinner()
@@ -200,9 +171,9 @@ public class GameManager : MonoBehaviour
             return false;
         }
         
-        if (m_board.PlayerNode != null)
+        if (_board.PlayerNode != null)
         {
-            return (m_board.PlayerNode == m_board.GoalNode);
+            return (_board.PlayerNode == _board.GoalNode);
         }
         
         
@@ -213,21 +184,21 @@ public class GameManager : MonoBehaviour
 
     void PlayPlayerTurn()
     {
-        m_currentTurn = Turn.Player;
-        m_player.IsTurnComplete = false;
+        _currentTurn = Turn.Player;
+        _player.IsTurnOver = false;
 
         
     }
 
     void PlayEnemyTurn()
     {
-        m_currentTurn = Turn.Enemy;
+        _currentTurn = Turn.Enemy;
 
-        foreach (EnemyManager enemy in m_enemies)
+        foreach (EnemyManager enemy in _enemies)
         {
             if (enemy != null && !enemy.IsDead)
             {
-                enemy.IsTurnComplete = false;
+                enemy.IsTurnOver = false;
 
                 enemy.PlayTurn();
             }
@@ -237,14 +208,14 @@ public class GameManager : MonoBehaviour
     
     bool IsEnemyTurnComplete()
     {
-        foreach (EnemyManager enemy in m_enemies)
+        foreach (EnemyManager enemy in _enemies)
         {
             if (enemy.IsDead)
             {
                 continue;
             }
 
-            if (!enemy.IsTurnComplete)
+            if (!enemy.IsTurnOver)
             {
                 return false;
             }
@@ -255,7 +226,7 @@ public class GameManager : MonoBehaviour
 
     bool AreEnemiesAllDead()
     {
-        foreach (EnemyManager enemy in m_enemies)
+        foreach (EnemyManager enemy in _enemies)
         {
             if (!enemy.IsDead)
             {
@@ -268,15 +239,15 @@ public class GameManager : MonoBehaviour
     
     public void UpdateTurn()
     {
-        if (m_currentTurn == Turn.Player && m_player != null)
+        if (_currentTurn == Turn.Player && _player != null)
         {
-            if (m_player.IsTurnComplete && !AreEnemiesAllDead())
+            if (_player.IsTurnOver && !AreEnemiesAllDead())
             {
                 PlayEnemyTurn();
             }
 
         }
-        else if (m_currentTurn == Turn.Enemy)
+        else if (_currentTurn == Turn.Enemy)
         {
             if (IsEnemyTurnComplete())
             {
@@ -312,27 +283,5 @@ public class GameManager : MonoBehaviour
             Debug.Log("You need to collect the item before finishing the level.");
         }
     }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 }

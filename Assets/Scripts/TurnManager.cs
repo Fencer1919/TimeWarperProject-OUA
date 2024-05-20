@@ -4,23 +4,21 @@ using UnityEngine;
 
 public class TurnManager : MonoBehaviour
 {
-    protected GameManager m_gameManager;
+    protected GameManager _gameManager;
 
-    protected bool m_isTurnComplete = false;
-    public bool IsTurnComplete { get { return m_isTurnComplete; } set { m_isTurnComplete = value; }}
+    protected bool _isTurnOver = false;
+    public bool IsTurnOver { get { return _isTurnOver; } set { _isTurnOver = value; }}
 
     protected virtual void Awake()
     {
-        m_gameManager = Object.FindObjectOfType<GameManager>().GetComponent<GameManager>();
+        _gameManager = Object.FindObjectOfType<GameManager>().GetComponent<GameManager>();
     }
 
     public virtual void FinishTurn()
     {
-        m_isTurnComplete = true;
+        _isTurnOver = true;
 
-        if (m_gameManager != null)
-        {
-            m_gameManager.UpdateTurn();
-        }
+        if (_gameManager != null)
+            _gameManager.UpdateTurn();
     }
 }

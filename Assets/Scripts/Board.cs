@@ -4,10 +4,8 @@ using UnityEngine;
 
 public class Board : MonoBehaviour
 {
-    
     public static float spacing = 2f;
 
-    
     public static readonly Vector2[] directions =
     {
         new Vector2(spacing, 0f),
@@ -16,72 +14,62 @@ public class Board : MonoBehaviour
         new Vector2(0f, -spacing)
     };
 
-    List<Node> m_allNodes = new List<Node>();
-    public List<Node> AllNodes { get { return m_allNodes; } }
+    List<Node> _allNodes = new List<Node>();
+    public List<Node> AllNodes { get { return _allNodes; } }
 
-    
-    Node m_playerNode;
-    public Node PlayerNode { get { return m_playerNode; } }
+    Node _playerNode;
+    public Node PlayerNode { get { return _playerNode; } }
 
-    
-    Node m_goalNode;
-    public Node GoalNode { get { return m_goalNode; } }
-
- 
-    
+    Node _goalNode;
+    public Node GoalNode { get { return _goalNode; } }
     public GameObject goalPrefab;
     public float drawGoalTime = 2f;
     public float drawGoalDelay = 2f;
     public iTween.EaseType drawGoalEaseType = iTween.EaseType.easeOutExpo;
 
-    PlayerMover m_player;
+    PlayerMover _player;
 
-    
     public List<Transform> capturePositions;
-
-    
-    int m_currentCapturePosition = 0;
-	public int CurrentCapturePosition { get { return m_currentCapturePosition; } 
-        set { m_currentCapturePosition = value; } }
-
-  
+    int _currentCapturePosition = 0;
+	public int CurrentCapturePosition { get { return _currentCapturePosition; } set { _currentCapturePosition = value; } }
     public float capturePositionIconSize = 0.4f;
-    public Color capturePositionIconColor = Color.blue;
 
-
-	void Awake()
+    public bool isPast = false;
+    public void ChangeTime()
     {
-        m_player = Object.FindObjectOfType<PlayerMover>().GetComponent<PlayerMover>();
+        if (isPast) { isPast = false; }
+        else { isPast = true; }
+    }
+    void Awake()
+    {
+        _player = Object.FindObjectOfType<PlayerMover>().GetComponent<PlayerMover>();
         GetNodeList();
 
-        m_goalNode = FindGoalNode();
+        _goalNode = FindGoalNode();
     }
-
 
     public void GetNodeList()
     {
         Node[] nList = Object.FindObjectsOfType<Node>();
-        m_allNodes = new List<Node>(nList);
+        _allNodes = new List<Node>(nList);
     }
 
-    
     public Node FindNodeAt(Vector3 pos)
     {
-        Vector2 boardCoord = Utility.Vector2Round(new Vector2(pos.x, pos.z));
-        return m_allNodes.Find(n => n.Coordinate == boardCoord);
+        Vector2 boardCoord = Utils.Vector2Round(new Vector2(pos.x, pos.z));
+        return _allNodes.Find(n => n.Coordinate == boardCoord);
     }
 
     Node FindGoalNode()
     {
-        return m_allNodes.Find(n => n.isLevelGoal);
+        return _allNodes.Find(n => n.isLevelGoal);
     }
-
     
     public Node FindPlayerNode()
     {
-        if (m_player != null && !m_player.isMoving)
+        if (_player != null && !_player.isMoving)
         {
-            return FindNodeAt(m_player.transform.position);
+            return FindNodeAt(_player.transform.position);
         }
         return null;
     }
@@ -103,37 +91,28 @@ public class Board : MonoBehaviour
         return foundEnemies;
     }
 
-   
     public void UpdatePlayerNode()
     {
-        m_playerNode = FindPlayerNode();
+        _playerNode = FindPlayerNode();
     }
 
-   
     void OnDrawGizmos()
     {
         Gizmos.color = new Color(0f, 1f, 1f, 0.5f);
-        if (m_playerNode != null)
-        {
-            Gizmos.DrawSphere(m_playerNode.transform.position, 0.2f);
-        }
-
+        if (_playerNode != null)
+            Gizmos.DrawSphere(_playerNode.transform.position, 0.2f);
        
-        Gizmos.color = capturePositionIconColor;
+        Gizmos.color = new Color(0f, 1f, 0f, 0.5f);
 
         foreach (Transform capturePos in capturePositions)
-        {
             Gizmos.DrawCube(capturePos.position, Vector3.one * capturePositionIconSize);
-        }
     }
 
-    
     public void DrawGoal()
     {
-        if (goalPrefab != null && m_goalNode != null)
+        if (goalPrefab != null && _goalNode != null)
         {
-            GameObject goalInstance = Instantiate(goalPrefab, m_goalNode.transform.position,
-                                                  Quaternion.identity);
+            GameObject goalInstance = Instantiate(goalPrefab, _goalNode.transform.position, Quaternion.identity);
             iTween.ScaleFrom(goalInstance, iTween.Hash(
                 "scale", Vector3.zero,
                 "time", drawGoalTime,
@@ -143,12 +122,11 @@ public class Board : MonoBehaviour
         }
     }
 
-    
     public void InitBoard()
     {
-        if (m_playerNode != null)
+        if (_playerNode != null)
         {
-            m_playerNode.InitNode();
+            _playerNode.InitNode();
         }
     }
 

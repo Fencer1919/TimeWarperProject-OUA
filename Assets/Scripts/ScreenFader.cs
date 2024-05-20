@@ -7,13 +7,9 @@ using UnityEngine.UI;
 public class ScreenFader : MonoBehaviour
 {
     public Color solidColor = Color.white;
-
     public Color clearColor = new Color (1f, 1f, 1f, 0f);
-
     public float delay = 0.5f;
-
     public float timeToFade = 2f;
-
     public iTween.EaseType easeType = iTween.EaseType.easeOutExpo;
 
     MaskableGraphic graphic;

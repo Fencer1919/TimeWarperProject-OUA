@@ -4,29 +4,19 @@ using UnityEngine;
 
 public enum MovementType
 {
-    Stationary,
-    Patrol,
-    Spinner
+    Stat,
+    Walker,
 }
 
 public class EnemyMover : Mover
 {
-    
     public Vector3 directionToMove = new Vector3(0f, 0f, Board.spacing);
-
-    
-    public MovementType movementType = MovementType.Stationary;
-
-    
-    public float standTime = 1f;
-
+    public MovementType movementType = MovementType.Stat;
+    public float statTime = 1f;
 
     protected override void Awake()
     {
-        base.Awake();
-
-        
-        faceDestination = true;
+        base.Awake(); 
     }
 
     protected override void Start()
@@ -34,104 +24,59 @@ public class EnemyMover : Mover
         base.Start();
     }
 
-    
     public void MoveOneTurn()
     {
         switch (movementType)
         {
-            case MovementType.Patrol:
-                Patrol();
+            case MovementType.Walker:
+                Walker();
                 break;
-            case MovementType.Stationary:
-				Stand();
-                break;
-            case MovementType.Spinner:
-                Spin();
+            case MovementType.Stat:
+				Stat();
                 break;
         }
     }
 
-    void Patrol()
+    void Walker()
     {
-        StartCoroutine(PatrolRoutine());
+        StartCoroutine(WalkerRoutine());
     }
 
-    IEnumerator PatrolRoutine()
+    IEnumerator WalkerRoutine()
     {
-        
-        Vector3 startPos = new Vector3(m_currentNode.Coordinate.x, 0f, m_currentNode.Coordinate.y);
-
-        
+        Vector3 startPos = new Vector3(_currentNode.Coordinate.x, 0f, _currentNode.Coordinate.y);
         Vector3 newDest = startPos + transform.TransformVector(directionToMove);
-
-        
         Vector3 nextDest = startPos + transform.TransformVector(directionToMove * 2f);
 
-       
         Move(newDest, 0f);
 
         while (isMoving)
-        {
 			yield return null; 
-        }
 
-        if (m_board != null)
+        if (_board != null)
         {
-           
-            Node newDestNode = m_board.FindNodeAt(newDest);
-
-            Node nextDestNode = m_board.FindNodeAt(nextDest);
-
-            
+            Node newDestNode = _board.FindNodeAt(newDest);
+            Node nextDestNode = _board.FindNodeAt(nextDest);
             if (nextDestNode == null || !newDestNode.LinkedNodes.Contains(nextDestNode))
             {
-                
                 destination = startPos;
                 FaceDestination();
 
                 yield return new WaitForSeconds(rotateTime);
             }
         }
-
-		
 		base.finishMovementEvent.Invoke();
     }
 
-   
-    void Stand()
+    void Stat()
     {
-        StartCoroutine(StandRoutine());
+        StartCoroutine(StatRoutine());
     }
 
-    
-    IEnumerator StandRoutine()
+    IEnumerator StatRoutine()
     {
        
-        yield return new WaitForSeconds(standTime);
-
-        
+        yield return new WaitForSeconds(statTime);
         base.finishMovementEvent.Invoke();
-    }
-
-    void Spin()
-    {
-        StartCoroutine(SpinRoutine());
-    }
-
-    IEnumerator SpinRoutine()
-    {
-        
-        Vector3 localForward = new Vector3(0f, 0f, Board.spacing);
-
-        destination = transform.TransformVector(localForward * -1f) + transform.position;
-
-        
-        FaceDestination();
-
-        
-        yield return new WaitForSeconds(rotateTime);
-
-		
-		base.finishMovementEvent.Invoke();
     }
 }

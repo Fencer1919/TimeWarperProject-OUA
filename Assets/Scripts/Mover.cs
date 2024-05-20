@@ -5,31 +5,23 @@ using UnityEngine.Events;
 
 public class Mover : MonoBehaviour
 {
-
     public Vector3 destination;
-
-    public bool faceDestination = true;
-
     public bool isMoving = false;
 
     public iTween.EaseType easeType = iTween.EaseType.easeInOutExpo;
-
     public float moveSpeed = 1.5f;
-
     public float rotateTime = 0.5f;
-
     public float iTweenDelay = 0f;
 
-    protected Board m_board;
-
-    protected Node m_currentNode;
-    public Node CurrentNode { get { return m_currentNode; } }
+    protected Board _board;
+    protected Node _currentNode;
+    public Node CurrentNode { get { return _currentNode; } }
 
     public UnityEvent finishMovementEvent;
 
     protected virtual void Awake()
     {
-        m_board = Object.FindObjectOfType<Board>().GetComponent<Board>();
+        _board = Object.FindObjectOfType<Board>().GetComponent<Board>();
     }
 
     protected virtual void Start()
@@ -40,40 +32,24 @@ public class Mover : MonoBehaviour
     public void Move(Vector3 destinationPos, float delayTime = 0.25f)
     {
         if (isMoving)
-        {
             return;
-        }
 
-        if (m_board != null)
+        if (_board != null)
         {
-            Node targetNode = m_board.FindNodeAt(destinationPos);
+            Node targetNode = _board.FindNodeAt(destinationPos);
 
-            if (targetNode != null && m_currentNode != null &&
-                m_currentNode.LinkedNodes.Contains(targetNode))
-            {
+            if (targetNode != null && _currentNode != null && _currentNode.LinkedNodes.Contains(targetNode) && !(targetNode.isPastObstacle && _board.isPast) && !(!_board.isPast && targetNode.isFutureObstacle))
                 StartCoroutine(MoveRoutine(destinationPos, delayTime));
-            }
-            else
-            {
-                Debug.Log("Node not connected to the target node");
-            }
         }
     }
 
     protected virtual IEnumerator MoveRoutine(Vector3 destinationPos, float delayTime)
     {
-
         isMoving = true;
-
         destination = destinationPos;
 
-        if (faceDestination)
-        {
-            FaceDestination();
-            yield return new WaitForSeconds(0.25f);
-        }
-
-        yield return new WaitForSeconds(delayTime);
+        FaceDestination();
+        yield return new WaitForSeconds(delayTime + 0.25f);
 
         iTween.MoveTo(gameObject, iTween.Hash(
             "x", destinationPos.x,
@@ -85,18 +61,12 @@ public class Mover : MonoBehaviour
         ));
 
         while (Vector3.Distance(destinationPos, transform.position) > 0.01f)
-        {
             yield return null;
-        }
 
         iTween.Stop(gameObject);
-
         transform.position = destinationPos;
-
         isMoving = false;
-
         UpdateCurrentNode();
-
     }
 
     public void MoveLeft()
@@ -111,13 +81,13 @@ public class Mover : MonoBehaviour
         Move(newPosition, 0);
     }
 
-    public void MoveForward()
+    public void MoveUp()
     {
         Vector3 newPosition = transform.position + new Vector3(0f, 0f, Board.spacing);
         Move(newPosition, 0);
     }
 
-    public void MoveBackward()
+    public void MoveDown()
     {
         Vector3 newPosition = transform.position + new Vector3(0f, 0f, -Board.spacing);
         Move(newPosition, 0);
@@ -125,18 +95,14 @@ public class Mover : MonoBehaviour
 
     protected void UpdateCurrentNode()
     {
-        if (m_board != null)
-        {
-            m_currentNode = m_board.FindNodeAt(transform.position);
-        }
+        if (_board != null)
+            _currentNode = _board.FindNodeAt(transform.position);
     }
 
     protected void FaceDestination()
     {
         Vector3 relativePosition = destination - transform.position;
-
         Quaternion newRotation = Quaternion.LookRotation(relativePosition, Vector3.up);
-
         float newY = newRotation.eulerAngles.y;
 
         iTween.RotateTo(gameObject, iTween.Hash(
