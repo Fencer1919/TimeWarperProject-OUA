@@ -8144,7 +8144,7 @@ PrefabInstance:
     - target: {fileID: 114906779870049302, guid: 305afb467b598478dbf3ada18b1cc581,
         type: 3}
       propertyPath: isFutureObstacle
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -18670,8 +18670,13 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 114906779870049302, guid: 305afb467b598478dbf3ada18b1cc581,
         type: 3}
-      propertyPath: isFutureObstacle
+      propertyPath: isPastObstacle
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 114906779870049302, guid: 305afb467b598478dbf3ada18b1cc581,
+        type: 3}
+      propertyPath: isFutureObstacle
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -22570,7 +22575,7 @@ PrefabInstance:
     - target: {fileID: -8679921383154817045, guid: 1c9bbab7a7d30044f82550267198cb98,
         type: 3}
       propertyPath: m_LocalPosition.z
-      value: -8.63
+      value: -6.625
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 1c9bbab7a7d30044f82550267198cb98,
         type: 3}
