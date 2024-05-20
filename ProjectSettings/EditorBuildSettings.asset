@@ -4,4 +4,8 @@
 EditorBuildSettings:
   m_ObjectHideFlags: 0
   serializedVersion: 2
-  m_Scenes: []
+  m_Scenes:
+  - enabled: 1
+    path: Assets/Scenes/LevelDegisim 1.unity
+    guid: 99e31a7844420cb4a874a5043085601c
+  m_configObjects: {}
